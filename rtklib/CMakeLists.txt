@@ -13,6 +13,8 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/rtklib)
 add_definitions(-DDLL)
 
+rosbuild_genmsg()
+
 set(src ${CMAKE_CURRENT_SOURCE_DIR}/src/src)
 file(GLOB RTK_SOURCES "${src}/*.c" "${src}/rcv/*.c")
 rosbuild_add_library(rtk ${RTK_SOURCES})

@@ -8,6 +8,7 @@ import re
 import time
 import calendar
 
+from rtklib.msg import rtk
 from sensor_msgs.msg import TimeReference
 from geometry_msgs.msg import PoseStamped,TransformStamped
 from tf.msg import tfMessage
@@ -32,6 +33,7 @@ if __name__ == "__main__":
     rospy.init_node('enu_to_pose')
     posepub = rospy.Publisher('enu', PoseStamped)
     timepub = rospy.Publisher('time_reference', TimeReference)
+    rtkpub = rospy.Publisher('rtk', rtk);
     tfpub = tf.TransformBroadcaster()
     tflisten = tf.TransformListener()
 
@@ -55,6 +57,7 @@ if __name__ == "__main__":
     gpstime = TimeReference()
     gpstime.source = time_ref_source
     trans_corr = (0.0, 0.0, 0.0)
+    rtk = rtk()
 
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -84,8 +87,13 @@ if __name__ == "__main__":
             t = time.strptime(fields[0] + ' ' + fields[1], "%Y/%m/%d %H:%M:%S.%f")
             gpstime.time_ref = rospy.Time.from_sec(calendar.timegm(t))
 
+            rtk.header = enu.header
+            rtk.quality = quality
+            rtk.nsat = nr_sats
+
             posepub.publish(enu)
             timepub.publish(gpstime)
+            rtkpub.publish(rtk);
 
             if not publish_tf: continue
 
